@@ -13,7 +13,7 @@ def cal_skyline(mask):
         try:
             first_zero_index = np.where(after_median == 0)[0][0]
             first_one_index = np.where(after_median == 1)[0][0]
-            if first_zero_index > 20:
+            if first_zero_index > 0:
                 mask[first_one_index:first_zero_index, i] = 1
                 mask[first_zero_index:, i] = 0
                 mask[:first_one_index, i] = 0
@@ -24,22 +24,26 @@ def cal_skyline(mask):
 
 def get_sky_region_gradient(img):
 
-    h, w, _ = img.shape
+    h, w = img.shape
 
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    img_gray = cv2.blur(img_gray, (9, 3))
-    cv2.medianBlur(img_gray, 5)
-    lap = cv2.Laplacian(img_gray, cv2.CV_8U)
+    img = cv2.blur(img, (9, 3))
+    cv2.medianBlur(img, 5)
+    lap = cv2.Laplacian(img, cv2.CV_8U)
     gradient_mask = (lap < 6).astype(np.uint8)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 3))
 
     mask = cv2.morphologyEx(gradient_mask, cv2.MORPH_ERODE, kernel)
-    # test = cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel)
-    plt.imshow(gradient_mask)
-    plt.show()
-    mask = cal_skyline(mask)
-    after_img = cv2.bitwise_and(img, img, mask=mask)
 
-    return after_img
+    # plt.figure(2)
+    # plt.subplot(2, 1, 1)
+    # plt.imshow(mask)
+    # plt.title('mask before')
+    # # mask = cal_skyline(mask)
+    # plt.subplot(2, 1, 2)
+    # plt.imshow(mask)
+    # plt.title('mask after')
+    # plt.show()
+    # after_img = cv2.bitwise_and(img, img, mask=mask)
+
+    return mask
