@@ -24,7 +24,7 @@ def is_night(img):
 
 if __name__ == "__main__":
 
-    # dictionary to store ground truth
+    # dictionary to store ground truths of first 150 images from all 4 datasets.
     ground_truth = {
         # 0: "day", 1: "night" 
         "623": [1,0,0,0,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,1,1,0,0,1,1,1,0,0,1,1,0,0,0,1,1,0,1,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0,0,1,0,0,0,0,1,0,0,1,1,1,0,1,1,1,0,0,0,0,1,1,1,0,0,0,1,0,0,0,1,1,1,0,0,1,1,1,0,0,1,1,1,1,0,0,1,0,0,0,0,1,0,0,0,1,1,1,0,0,1,1,1,0,0,1,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,1,0,0,1,0,0,0,0,1,1,1,0,0,0],
@@ -37,6 +37,7 @@ if __name__ == "__main__":
     folder = "dataset/data"
     results = {}
 
+    # Iterate through all folders in dataset
     for folder_path in os.listdir(folder):
 
         img_paths = os.listdir(os.path.join(folder, folder_path))
@@ -53,8 +54,6 @@ if __name__ == "__main__":
             if isNight == gt[i]:
                 success += 1
             
-            # predictions.append(isNight)
-        
         results[folder_path] = round(success/150, 2)
 
     print(results)

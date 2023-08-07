@@ -68,13 +68,13 @@ if __name__ == "__main__":
     data_folder = "dataset/data"
     skyline_folder = "dataset/skyline"
 
-    # Img paths for testing. Uncomment the one you want to test
+    ### Img paths for testing. Uncomment the one you want to test
     # img_path = "dataset/data/623/20120904_124155.jpg"
     img_path = "dataset/data/684/20120603_004139.jpg"
     # img_path = "dataset/data/9730/20130101_102704.jpg"
     # img_path = "dataset/data/10917/20110809_022406.jpg"
 
-    # Ground truth paths for testing. Uncomment the one you want to test
+    ### Ground truth paths for testing. Uncomment the one you want to test
     # gt_path = "dataset/ground_truth/623_GT.png"
     gt_path = "dataset/ground_truth/684_GT.png"
     # gt_path = "dataset/ground_truth/9730_GT.png"

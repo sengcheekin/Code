@@ -16,19 +16,22 @@ def turn_subsequent_pixels_to_zero(image):
                 break
     return image
 
+# Detect the skyline by dilating the image and subtracting the original image
 def detect_skyline(img):
     dilated = cv.dilate(img, np.ones((5, 5), np.uint8), iterations=1)
     skyline = dilated - img
 
     return skyline
 
+# Evaluate the accuracy of the skyline detection by taking the percentage of pixels that are the same
 def evaluate(output, ground_truth):
     diff = cv.absdiff(output, ground_truth)
     diff = diff.astype(np.uint8)
     percentage = (np.count_nonzero(diff == 0) / diff.size) * 100
 
     return percentage
-    
+
+# Get the coordinates of the zero pixels in the image, to be used for drawing contours
 def get_coordinates_of_zero(img):
     coordinates = []
     h, w = img.shape
@@ -39,19 +42,23 @@ def get_coordinates_of_zero(img):
                 break
     return np.array(coordinates)
 
+# If the image is classified as night, perform night processing
 def night_processing(img):
+    # dilate the image to expand the skyline (night skylines are usually formed by lights)
     kernel = np.ones((5,5),np.uint8)
     dilated = cv.dilate(img, kernel, iterations=3)
     dilated -= img
-    # close
+
+    # close the image to remove noise/holes in the sky region
     dilated = cv.morphologyEx(dilated, cv.MORPH_CLOSE, np.ones((5, 5), np.uint8), iterations=3)
     dilated = cv.erode(dilated, np.ones((7, 7), np.uint8), iterations=1)
     
+    # invert the image to make the sky regions white, convert to binary and get the coordinates of the zero pixels
     dilated = 255 - dilated
     dilated = cv.threshold(dilated, 127, 255, cv.THRESH_BINARY)[1]
     dilated_coordinates = get_coordinates_of_zero(dilated)
 
-    # draw contours on new image
+    # draw contours on new image, then turn all pixels under the contours to zero. Done to remove gaps between non-sky regions.
     new_image = np.zeros(dilated.shape, np.uint8)
     cv.drawContours(new_image, [dilated_coordinates], -1, (255, 255, 255), -1)
     new_image = 255 - new_image
@@ -65,19 +72,18 @@ if __name__ == "__main__":
     # time the program
     start = time.time()
 
+    # Path to the dataset. Data folder is to store the directories to be processed. Skyline folder is to store the detected skylines.
     data_folder = "dataset/data"
     skyline_folder = "dataset/skyline"
 
     # Dictionary to store the results
     results = {}
 
-    folder_arr = ['623', '9730', '684']
-
     for img_folder in os.listdir(data_folder):
-    # for img_folder in folder_arr:
 
         print(f"Processing {img_folder}...")
         
+        # variables to keep track of successful detections and number of night images
         successfull = 0
         numNights = 0
 
@@ -85,8 +91,8 @@ if __name__ == "__main__":
         ground_truth = cv.imread(f'dataset/ground_truth/{img_folder}_GT.png', 0)
         ground_truth = cv.threshold(ground_truth, 127, 1, cv.THRESH_BINARY)[1]
 
+        # iterate through all images in the folder
         for img_path in os.listdir(os.path.join(data_folder, img_folder)):
-
             try:            
                 img = cv.imread(os.path.join(data_folder, img_folder, img_path))
 
@@ -121,16 +127,17 @@ if __name__ == "__main__":
                 plt.title('ground truth')
                 plt.show()
 
-                # # detect and save skyline. If directory does not exist, create it
-                # skyline = detect_skyline(img_sky)
+                # detect and save skyline. If directory does not exist, create it
+                skyline = detect_skyline(img_sky)
 
-                # if not os.path.exists(os.path.join(skyline_folder, img_folder)):
-                #     os.makedirs(os.path.join(skyline_folder, img_folder))
-                # plt.imsave(os.path.join(skyline_folder, img_folder, img_path), skyline, cmap='gray')
+                if not os.path.exists(os.path.join(skyline_folder, img_folder)):
+                    os.makedirs(os.path.join(skyline_folder, img_folder))
+                plt.imsave(os.path.join(skyline_folder, img_folder, img_path), skyline, cmap='gray')
 
             except Exception as e:
                 print(f"Error processing {img_folder}/{img_path}: {e}")
 
+        # calculate success rate and store in dictionary
         success_rate = successfull / len(os.listdir(os.path.join(data_folder, img_folder)))
         success_rate = round(success_rate * 100, 2)        
         results[img_folder] = success_rate
