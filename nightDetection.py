@@ -5,26 +5,58 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import os
 
-# Read image
-# img = cv2.imread('dataset/623/20120901_084151.jpg') # night image
-# img = cv2.imread('dataset/623/20120901_174155.jpg') # day image
-# img = cv2.imread('dataset/623/20120905_004156.jpg') # dawn image
-img = cv2.imread('dataset/9730/20130329_052708.jpg') # dusk image
+def is_night(img):
+    # Find brightness of top half of image
+    h, w, _ = img.shape
+    img = img[0:int(h/2), 0:w]
+    brightness = np.mean(img)
 
-# Convert to grayscale
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Compare brightness to threshold
+    if brightness < 129:
+        isNight = 1
+    else:
+        isNight = 0
 
-# Find brightness of image
-brightness = np.mean(gray)
+    return isNight
 
-# Compare brightness to threshold
-if brightness < 100:
-    print("It is night")
-else:
-    print("It is day")
 
-# Display image
-cv2.imshow('image', img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+
+    # dictionary to store ground truth
+    ground_truth = {
+        # 0: "day", 1: "night" 
+        "623": [1,0,0,0,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,1,1,0,0,1,1,1,0,0,1,1,0,0,0,1,1,0,1,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0,0,1,0,0,0,0,1,0,0,1,1,1,0,1,1,1,0,0,0,0,1,1,1,0,0,0,1,0,0,0,1,1,1,0,0,1,1,1,0,0,1,1,1,1,0,0,1,0,0,0,0,1,0,0,0,1,1,1,0,0,1,1,1,0,0,1,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,1,0,0,1,0,0,0,0,1,1,1,0,0,0],
+        "684": [0,0,0,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,0,0,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,1,0,0,0,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1],
+        "9730": [0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,0,0,0,1,0,0,1,1,1,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1,1,1,0,0,1,1],
+        "10917": [1,1,0,0,1,1,0,0,0,1,0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,1,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,1,1,0,0,1,1,0,0,1,1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0]
+    }
+
+
+    folder = "dataset/data"
+    results = {}
+
+    for folder_path in os.listdir(folder):
+
+        img_paths = os.listdir(os.path.join(folder, folder_path))
+        gt = ground_truth.get(folder_path)
+        success = 0
+        print("Processing folder: " + folder_path)
+
+        for i in range(150):
+            img = cv2.imread(os.path.join(folder, folder_path, img_paths[i]))
+
+            isNight = is_night(img)
+
+            # Compare to ground truth
+            if isNight == gt[i]:
+                success += 1
+            
+            # predictions.append(isNight)
+        
+        results[folder_path] = round(success/150, 2)
+
+    print(results)
+        
+            
