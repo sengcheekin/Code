@@ -69,14 +69,14 @@ if __name__ == "__main__":
     skyline_folder = "dataset/skyline"
 
     ### Img paths for testing. Uncomment the one you want to test
-    # img_path = "dataset/data/623/20120904_124155.jpg"
-    img_path = "dataset/data/684/20120603_004139.jpg"
+    img_path = "dataset/data/623/20120901_084151.jpg"
+    # img_path = "dataset/data/684/20120603_004139.jpg"
     # img_path = "dataset/data/9730/20130101_102704.jpg"
     # img_path = "dataset/data/10917/20110809_022406.jpg"
 
     ### Ground truth paths for testing. Uncomment the one you want to test
-    # gt_path = "dataset/ground_truth/623_GT.png"
-    gt_path = "dataset/ground_truth/684_GT.png"
+    gt_path = "dataset/ground_truth/623_GT.png"
+    # gt_path = "dataset/ground_truth/684_GT.png"
     # gt_path = "dataset/ground_truth/9730_GT.png"
     # gt_path = "dataset/ground_truth/10917_GT.png"
 
@@ -92,8 +92,12 @@ if __name__ == "__main__":
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     if isNight:
+        print("Night image detected")
+
         img_sky = night_processing(img)
     else:
+
+        print("Day image detected")
 
         img_sky = detector.get_sky_region_gradient(img)
 
@@ -111,17 +115,19 @@ if __name__ == "__main__":
     # detect and save skyline. If directory does not exist, create it
     skyline = detect_skyline(img_sky)
 
+    print(f"Time taken: {time.time() - start} seconds")
+
     plt.subplot(1,3,1)
-    plt.imshow(ground_truth)
+    plt.imshow(ground_truth, 'gray')
     plt.title('ground truth')
 
     plt.subplot(1,3,2)
-    plt.imshow(img_sky)
+    plt.imshow(img_sky, 'gray')
     plt.title('Similarity: ' + str(similarity) + '%')
 
     plt.subplot(1,3,3)
-    plt.imshow(skyline)
+    plt.imshow(skyline, 'gray')
     plt.title('skyline')
     plt.show()
 
-print(f"Time taken: {time.time() - start} seconds")
+

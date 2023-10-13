@@ -101,6 +101,7 @@ if __name__ == "__main__":
 
                 img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
+                # if it is night, perform night processing. Else, perform normal processing
                 if isNight:
                     numNights += 1
                     img_sky = night_processing(img)
@@ -118,14 +119,6 @@ if __name__ == "__main__":
                 if similarity > 90:
                     successfull += 1
                 
-                plt.subplot(2,1,1)
-                plt.imshow(img_sky)
-                plt.title('Similarity: ' + str(similarity) + '%')
-
-                plt.subplot(2,1,2)
-                plt.imshow(ground_truth)
-                plt.title('ground truth')
-                plt.show()
 
                 # detect and save skyline. If directory does not exist, create it
                 skyline = detect_skyline(img_sky)
@@ -133,6 +126,20 @@ if __name__ == "__main__":
                 if not os.path.exists(os.path.join(skyline_folder, img_folder)):
                     os.makedirs(os.path.join(skyline_folder, img_folder))
                 plt.imsave(os.path.join(skyline_folder, img_folder, img_path), skyline, cmap='gray')
+
+                # plot the images for visualisation. Comment out if not needed.
+                plt.subplot(1,3,1)
+                plt.imshow(ground_truth, 'gray')
+                plt.title('ground truth')
+
+                plt.subplot(1,3,2)
+                plt.imshow(img_sky, 'gray')
+                plt.title('Similarity: ' + str(similarity) + '%')
+
+                plt.subplot(1,3,3)
+                plt.imshow(skyline, 'gray')
+                plt.title('skyline')
+                plt.show()
 
             except Exception as e:
                 print(f"Error processing {img_folder}/{img_path}: {e}")
