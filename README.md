@@ -16,7 +16,7 @@ Original dataset can be found here: https://cs.valdosta.edu/~rpmihail/skyfinder/
 ### Daytime Images
 The method to process daytime images was adapted from the algorithm presented in [1]'s paper.
 
-1. Modify Shen and Wang's algorithm to process grayscale images and produce the sky region mask.
+1. Modify [1]'s algorithm to process grayscale images and produce the sky region mask.
 2. Perform a closing morphological operation followed by erosion to remove misclassified small pixels as the sky region.
 3. Check each column for '0' pixels and set subsequent pixels to '0' to accurately identify the skyline.
 
